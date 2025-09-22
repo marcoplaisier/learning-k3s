@@ -14,7 +14,7 @@ jobs:
 
       - name: Build and push
         run: |
-          cd apps/file-resizer
+          cd apps/image-processor
           docker build -t ghcr.io/${{ github.repository_owner }}/image-processor:${{ github.sha }} .
           docker build -t ghcr.io/${{ github.repository_owner }}/image-processor:latest .
           docker push ghcr.io/${{ github.repository_owner }}/image-processor:${{ github.sha }}

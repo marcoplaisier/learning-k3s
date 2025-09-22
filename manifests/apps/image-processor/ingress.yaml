@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: image-processor-ingress
+  namespace: image-processor
+spec:
+  rules:
+    - host: image-processor.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: image-processor-service
+                port:
+                  number: 80
