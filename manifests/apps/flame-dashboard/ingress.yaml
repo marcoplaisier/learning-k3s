@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flame-dashboard-ingress
+  namespace: flame-dashboard
+spec:
+  rules:
+    - host: flame-dashboard.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: flame-dashboard-service
+                port:
+                  number: 80

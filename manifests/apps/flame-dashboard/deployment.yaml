@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flame-dashboard-deployment
+  namespace: flame-dashboard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flame-dashboard
+  template:
+    metadata:
+      labels:
+        app: flame-dashboard
+    spec:
+      containers:
+      - name: flame-dashboard
+        image: pawelmalak/flame:2.3.1
+        ports:
+        - containerPort: 5005

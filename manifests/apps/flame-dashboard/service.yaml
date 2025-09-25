@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flame-dashboard-service
+  namespace: flame-dashboard
+spec:
+  selector:
+    app: flame-dashboard
+  ports:
+    - port: 80
+      targetPort: 5005
+  type: ClusterIP
