@@ -14,13 +14,15 @@ metadata:
 spec:
   build:
     # Build strategy for K3s - using pod (builds in-cluster)
-    # Publish strategy Spectrum for pod builds (lightweight, no external registry)
+    # Publish strategy Jib with in-cluster registry
     buildConfiguration:
       strategy: pod
-    publishStrategy: Spectrum
+    publishStrategy: Jib
     registry:
-      # Using local k3s containerd - no external registry needed
-      address: localhost:5000
+      # Use service DNS name (accessible from build pods)
+      # registries.yaml will redirect pulls to localhost:30500
+      address: registry.registry:5000
+      organization: camel-k
       insecure: true
     timeout: 5m
   cluster: Kubernetes
