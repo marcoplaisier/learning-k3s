@@ -2,13 +2,14 @@
 - name: Install and Configure ArgoCD
   hosts: k3s_control_plane
   become: yes
-  vars:
-    manifests_dir: "/home/marco/Development/learning-k3s/manifests/apps/argo-cd"
   tasks:
-    - name: Apply ArgoCD namespace from existing manifests
-      command: kubectl apply -f {{ manifests_dir }}/namespace.yaml
+    - name: Create ArgoCD namespace
+      command: kubectl create namespace argocd
       register: argocd_namespace
-      changed_when: "'created' in argocd_namespace.stdout or 'configured' in argocd_namespace.stdout"
+      failed_when:
+        - argocd_namespace.rc != 0
+        - "'AlreadyExists' not in argocd_namespace.stderr"
+      changed_when: argocd_namespace.rc == 0
 
     - name: Install ArgoCD
       command: >
@@ -25,10 +26,21 @@
       delay: 10
       until: argocd_ready.rc == 0
 
-    - name: Apply ArgoCD ingress from existing manifests
-      command: kubectl apply -f {{ manifests_dir }}/ingress.yaml
+    - name: Copy ArgoCD ingress manifest to remote host
+      copy:
+        src: ../manifests/apps/argo-cd/ingress.yaml
+        dest: /tmp/argocd-ingress.yaml
+        mode: '0644'
+
+    - name: Apply ArgoCD ingress from manifest
+      command: kubectl apply -f /tmp/argocd-ingress.yaml
       register: argocd_ingress
       changed_when: "'created' in argocd_ingress.stdout or 'configured' in argocd_ingress.stdout"
+
+    - name: Remove temporary ingress manifest
+      file:
+        path: /tmp/argocd-ingress.yaml
+        state: absent
 
     - name: Get ArgoCD admin password
       shell: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
@@ -43,7 +55,7 @@
           - "Username: admin"
           - "Password: {{ argocd_password.stdout }}"
           - ""
-          - "ArgoCD ingress has been configured from: manifests/apps/argo-cd/ingress.yaml"
+          - "ArgoCD ingress has been configured"
           - ""
           - "To access ArgoCD:"
           - "1. Add '192.168.178.81 argocd.local' to your /etc/hosts file"
