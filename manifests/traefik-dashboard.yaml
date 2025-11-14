@@ -3,6 +3,8 @@ kind: IngressRoute
 metadata:
   name: traefik-dashboard
   namespace: kube-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - web

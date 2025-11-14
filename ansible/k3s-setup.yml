@@ -1,0 +1,122 @@
+---
+- name: Setup K3s Control Plane
+  hosts: k3s_control_plane
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - ca-certificates
+        state: present
+
+    - name: Check if K3s is already installed
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_installed
+
+    - name: Install K3s server
+      shell: |
+        curl -sfL https://get.k3s.io | sh -s - server \
+          --write-kubeconfig-mode=644
+      when: not k3s_installed.stat.exists
+
+    - name: Wait for K3s to be ready
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+        state: present
+        timeout: 300
+
+    - name: Get K3s node token
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_token
+
+    - name: Save token for workers
+      set_fact:
+        k3s_node_token: "{{ k3s_token.content | b64decode | trim }}"
+
+    - name: Get K3s server status
+      command: systemctl status k3s
+      register: k3s_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display K3s server status
+      debug:
+        var: k3s_status.stdout_lines
+
+- name: Setup K3s Worker Nodes
+  hosts: k3s_workers
+  become: yes
+  vars:
+    k3s_url: "https://{{ hostvars[groups['k3s_control_plane'][0]]['ansible_host'] }}:6443"
+    k3s_token: "{{ hostvars[groups['k3s_control_plane'][0]]['k3s_node_token'] }}"
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - apt-transport-https
+          - ca-certificates
+        state: present
+
+    - name: Check if K3s agent is already installed
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_agent_installed
+
+    - name: Install K3s agent
+      shell: |
+        curl -sfL https://get.k3s.io | K3S_URL="{{ k3s_url }}" K3S_TOKEN="{{ k3s_token }}" sh -
+      when: not k3s_agent_installed.stat.exists
+
+    - name: Wait for K3s agent to be ready
+      wait_for:
+        timeout: 30
+
+    - name: Get K3s agent status
+      command: systemctl status k3s-agent
+      register: k3s_agent_status
+      changed_when: false
+      failed_when: false
+
+    - name: Display K3s agent status
+      debug:
+        var: k3s_agent_status.stdout_lines
+
+- name: Verify K3s Cluster
+  hosts: k3s_control_plane
+  become: yes
+  tasks:
+    - name: Wait for nodes to be ready
+      shell: kubectl get nodes
+      register: nodes_status
+      until: nodes_status.stdout.find("NotReady") == -1
+      retries: 10
+      delay: 10
+      changed_when: false
+
+    - name: Display cluster nodes
+      debug:
+        var: nodes_status.stdout_lines
+
+    - name: Get all pods
+      command: kubectl get pods -A
+      register: all_pods
+      changed_when: false
+
+    - name: Display all pods
+      debug:
+        var: all_pods.stdout_lines

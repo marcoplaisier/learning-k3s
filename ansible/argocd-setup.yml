@@ -1,0 +1,63 @@
+---
+- name: Install and Configure ArgoCD
+  hosts: k3s_control_plane
+  become: yes
+  vars:
+    manifests_dir: "/home/marco/Development/learning-k3s/manifests/apps/argo-cd"
+  tasks:
+    - name: Apply ArgoCD namespace from existing manifests
+      command: kubectl apply -f {{ manifests_dir }}/namespace.yaml
+      register: argocd_namespace
+      changed_when: "'created' in argocd_namespace.stdout or 'configured' in argocd_namespace.stdout"
+
+    - name: Install ArgoCD
+      command: >
+        kubectl apply -n argocd -f
+        https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+      register: argocd_install
+      changed_when: "'created' in argocd_install.stdout or 'configured' in argocd_install.stdout"
+
+    - name: Wait for ArgoCD server to be ready
+      command: kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
+      register: argocd_ready
+      changed_when: false
+      retries: 3
+      delay: 10
+      until: argocd_ready.rc == 0
+
+    - name: Apply ArgoCD ingress from existing manifests
+      command: kubectl apply -f {{ manifests_dir }}/ingress.yaml
+      register: argocd_ingress
+      changed_when: "'created' in argocd_ingress.stdout or 'configured' in argocd_ingress.stdout"
+
+    - name: Get ArgoCD admin password
+      shell: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+      register: argocd_password
+      changed_when: false
+      failed_when: false
+
+    - name: Display ArgoCD access information
+      debug:
+        msg:
+          - "ArgoCD has been installed successfully!"
+          - "Username: admin"
+          - "Password: {{ argocd_password.stdout }}"
+          - ""
+          - "ArgoCD ingress has been configured from: manifests/apps/argo-cd/ingress.yaml"
+          - ""
+          - "To access ArgoCD:"
+          - "1. Add '192.168.178.81 argocd.local' to your /etc/hosts file"
+          - "2. Access the UI at: http://argocd.local"
+          - ""
+          - "Or use port-forward temporarily:"
+          - "kubectl port-forward svc/argocd-server -n argocd 8080:443"
+      when: argocd_password.stdout != ""
+
+    - name: Get ArgoCD server status
+      command: kubectl get pods -n argocd
+      register: argocd_pods
+      changed_when: false
+
+    - name: Display ArgoCD pods
+      debug:
+        var: argocd_pods.stdout_lines
