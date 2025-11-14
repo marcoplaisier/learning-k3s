@@ -383,6 +383,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: camel-k-operator
+  namespace: camel-k
 roleRef:
   kind: ClusterRole
   name: camel-k-operator
@@ -429,6 +430,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: camel-k-operator
+  namespace: camel-k
 roleRef:
   kind: ClusterRole
   name: camel-k-operator-events
@@ -478,6 +480,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: camel-k-operator
+  namespace: camel-k
 roleRef:
   kind: ClusterRole
   name: camel-k-operator-leases
