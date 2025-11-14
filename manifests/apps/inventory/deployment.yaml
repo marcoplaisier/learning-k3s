@@ -35,11 +35,17 @@ spec:
           httpGet:
             path: /components/
             port: 8000
+            httpHeaders:
+            - name: Host
+              value: localhost
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /components/
             port: 8000
+            httpHeaders:
+            - name: Host
+              value: localhost
           initialDelaySeconds: 10
           periodSeconds: 5
