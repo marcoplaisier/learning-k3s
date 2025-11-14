@@ -1,0 +1,132 @@
+---
+# ServiceMonitor for ArgoCD Server
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-server-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-server
+    app.kubernetes.io/component: server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-server-metrics
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD Repo Server
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-repo-server-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/component: repo-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-repo-server
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD Application Controller
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-application-controller-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-application-controller
+    app.kubernetes.io/component: application-controller
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-application-controller
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD ApplicationSet Controller
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-applicationset-controller-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-applicationset-controller
+    app.kubernetes.io/component: applicationset-controller
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-applicationset-controller
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD Notifications Controller
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-notifications-controller-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-notifications-controller
+    app.kubernetes.io/component: notifications-controller
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-notifications-controller
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD Dex Server (if enabled)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-dex-server-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-dex-server
+    app.kubernetes.io/component: dex-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-dex-server
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
+---
+# ServiceMonitor for ArgoCD Redis
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-redis-metrics
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-redis
+    app.kubernetes.io/component: redis
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: argocd-redis
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
