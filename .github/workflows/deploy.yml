@@ -12,10 +12,18 @@ jobs:
       - name: Login to GitHub Container Registry
         run: echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Build and push
+      - name: Build and push image-processor
         run: |
           cd apps/image-processor
           docker build -t ghcr.io/${{ github.repository_owner }}/image-processor:${{ github.sha }} .
           docker build -t ghcr.io/${{ github.repository_owner }}/image-processor:latest .
           docker push ghcr.io/${{ github.repository_owner }}/image-processor:${{ github.sha }}
           docker push ghcr.io/${{ github.repository_owner }}/image-processor:latest
+
+      - name: Build and push inventory
+        run: |
+          cd apps/inventory
+          docker build -t ghcr.io/${{ github.repository_owner }}/inventory:${{ github.sha }} .
+          docker build -t ghcr.io/${{ github.repository_owner }}/inventory:latest .
+          docker push ghcr.io/${{ github.repository_owner }}/inventory:${{ github.sha }}
+          docker push ghcr.io/${{ github.repository_owner }}/inventory:latest
