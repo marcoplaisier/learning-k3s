@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory
+  namespace: inventory
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      containers:
+      - name: inventory
+        image: ghcr.io/marcoplaisier/inventory:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: ALLOWED_HOSTS
+          value: "inventory.local,localhost"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: secret-key
+              optional: true
+        livenessProbe:
+          httpGet:
+            path: /components/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /components/
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
