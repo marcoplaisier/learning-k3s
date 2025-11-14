@@ -4,6 +4,8 @@ kind: ServersTransport
 metadata:
   name: argocd-transport
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   serverName: argocd-server
   insecureSkipVerify: true
@@ -13,6 +15,8 @@ kind: IngressRoute
 metadata:
   name: argocd-server
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   entryPoints:
     - websecure

@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: flame-dashboard-service
   namespace: flame-dashboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   selector:
     app: flame-dashboard

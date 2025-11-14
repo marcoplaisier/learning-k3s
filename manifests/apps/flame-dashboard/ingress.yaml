@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: flame-dashboard-ingress
   namespace: flame-dashboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
 spec:
   rules:
     - host: flame-dashboard.local

@@ -1,0 +1,66 @@
+---
+- name: Reset K3s Worker Nodes
+  hosts: k3s_workers
+  become: yes
+  tasks:
+    - name: Check if K3s agent uninstall script exists
+      stat:
+        path: /usr/local/bin/k3s-agent-uninstall.sh
+      register: k3s_agent_uninstall
+
+    - name: Uninstall K3s agent
+      command: /usr/local/bin/k3s-agent-uninstall.sh
+      when: k3s_agent_uninstall.stat.exists
+      ignore_errors: yes
+
+    - name: Remove K3s directories on workers
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/rancher
+        - /etc/rancher
+
+- name: Reset K3s Control Plane
+  hosts: k3s_control_plane
+  become: yes
+  tasks:
+    - name: Check if K3s uninstall script exists
+      stat:
+        path: /usr/local/bin/k3s-uninstall.sh
+      register: k3s_uninstall
+
+    - name: Uninstall K3s server
+      command: /usr/local/bin/k3s-uninstall.sh
+      when: k3s_uninstall.stat.exists
+      ignore_errors: yes
+
+    - name: Remove K3s directories on control plane
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/rancher
+        - /etc/rancher
+
+    - name: Clean iptables rules
+      command: "{{ item }}"
+      loop:
+        - iptables -F
+        - iptables -t nat -F
+        - iptables -t mangle -F
+        - iptables -X
+      ignore_errors: yes
+
+- name: Verify K3s Removal
+  hosts: k3s_cluster
+  become: yes
+  tasks:
+    - name: Check if K3s binary still exists
+      stat:
+        path: /usr/local/bin/k3s
+      register: k3s_binary
+
+    - name: Display removal status
+      debug:
+        msg: "K3s has been {{ 'NOT ' if k3s_binary.stat.exists else '' }}removed successfully"
