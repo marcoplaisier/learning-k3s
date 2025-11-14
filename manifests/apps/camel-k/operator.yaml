@@ -1,0 +1,480 @@
+# ---------------------------------------------------------------------------
+# Camel K Operator v2.8.0 - Combined Manifest
+# Includes: ServiceAccounts, RBAC, and Operator Deployment
+# ---------------------------------------------------------------------------
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator
+  labels:
+    app: "camel-k"
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-builder
+  labels:
+    app: "camel-k"
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator
+  labels:
+    app: "camel-k"
+    camel.apache.org/component: operator
+    name: camel-k-operator
+    app.kubernetes.io/component: operator
+    app.kubernetes.io/name: camel-k
+    app.kubernetes.io/version: "2.8.0"
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      name: camel-k-operator
+  template:
+    metadata:
+      labels:
+        name: camel-k-operator
+        camel.apache.org/component: operator
+        app: "camel-k"
+        app.kubernetes.io/component: operator
+        app.kubernetes.io/name: camel-k
+        app.kubernetes.io/version: "2.8.0"
+    spec:
+      serviceAccountName: camel-k-operator
+      containers:
+        - name: camel-k-operator
+          image: docker.io/apache/camel-k:2.8.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - kamel
+            - operator
+          ports:
+            - containerPort: 8080
+              name: metrics
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OPERATOR_NAME
+              value: "camel-k"
+            - name: OPERATOR_ID
+              value: "camel-k"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            # NAMESPACE is always the operator namespace, independently of WATCH_NAMESPACE
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "8Gi"
+              cpu: "2"
+          securityContext:
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-builder
+  labels:
+    app: "camel-k"
+rules:
+- apiGroups:
+  - camel.apache.org
+  resources:
+  - builds
+  - camelcatalogs
+  - integrationkits
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - camel.apache.org
+  resources:
+  - builds/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-builder
+  labels:
+    app: "camel-k"
+subjects:
+- kind: ServiceAccount
+  name: camel-k-builder
+roleRef:
+  kind: Role
+  name: camel-k-builder
+  apiGroup: rbac.authorization.k8s.io
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator
+  labels:
+    app: "camel-k"
+rules:
+- apiGroups:
+  - camel.apache.org
+  resources:
+  - builds
+  - camelcatalogs
+  - integrationkits
+  - integrationplatforms
+  - integrationprofiles
+  - integrations
+  - pipes
+  - kamelets
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - camel.apache.org
+  resources:
+  - builds
+  verbs:
+  - delete
+- apiGroups:
+  - camel.apache.org
+  resources:
+  - builds/status
+  - camelcatalogs/status
+  - integrationkits/status
+  - integrationplatforms/status
+  - integrationprofiles/status
+  - integrations/scale
+  - integrations/status
+  - pipes/status
+  - pipes/scale
+  - kamelets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - endpoints
+  - persistentvolumeclaims
+  - configmaps
+  - secrets
+  - serviceaccounts
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/exec
+  verbs:
+  - create
+- apiGroups:
+  - ""
+  resources:
+  - pods/proxy
+  - pods/log
+  verbs:
+  - get
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - update
+  - list
+  - patch
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  - clusterrolebindings
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+  - list
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator
+  labels:
+    app: "camel-k"
+subjects:
+- kind: ServiceAccount
+  name: camel-k-operator
+roleRef:
+  kind: ClusterRole
+  name: camel-k-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator-events
+  labels:
+    app: "camel-k"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+  - get
+  - list
+  - watch
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator-events
+  labels:
+    app: "camel-k"
+subjects:
+- kind: ServiceAccount
+  name: camel-k-operator
+roleRef:
+  kind: ClusterRole
+  name: camel-k-operator-events
+  apiGroup: rbac.authorization.k8s.io
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator-leases
+  labels:
+    app: "camel-k"
+rules:
+- apiGroups:
+  - "coordination.k8s.io"
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - deletecollection
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# See the License for the specific language governing permissions and
+
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  name: camel-k-operator-leases
+  labels:
+    app: "camel-k"
+subjects:
+- kind: ServiceAccount
+  name: camel-k-operator
+roleRef:
+  kind: ClusterRole
+  name: camel-k-operator-leases
+  apiGroup: rbac.authorization.k8s.io
+---
