@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------------------
+# Camel K IntegrationPlatform Configuration
+# This defines how Camel K builds and runs integrations in the cluster
+# ---------------------------------------------------------------------------
+apiVersion: camel.apache.org/v1
+kind: IntegrationPlatform
+metadata:
+  name: camel-k
+  namespace: camel-k
+  labels:
+    app: camel-k
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  build:
+    # Build strategy for K3s - using spectrum (lightweight builder)
+    # Alternative: use "routine" for a simpler build strategy
+    buildStrategy: spectrum
+    registry:
+      # Configure this to point to your container registry
+      # For K3s with local registry: set to your registry address
+      # For external registry (ghcr.io, docker.io, etc.): configure accordingly
+      # Example: address: "ghcr.io/yourusername"
+      # insecure: true  # Set to true for local/dev registries without TLS
+      organization: camel-k
+    timeout: 5m
+  cluster: Kubernetes
+  profile: Kubernetes
