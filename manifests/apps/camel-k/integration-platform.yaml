@@ -13,16 +13,15 @@ metadata:
     argocd.argoproj.io/sync-wave: "4"
 spec:
   build:
-    # Build strategy for K3s - using spectrum (lightweight builder)
-    # Alternative: use "routine" for a simpler build strategy
-    buildStrategy: spectrum
+    # Build strategy for K3s - using pod (builds in-cluster)
+    # Publish strategy Spectrum for pod builds (lightweight, no external registry)
+    buildConfiguration:
+      strategy: pod
+    publishStrategy: Spectrum
     registry:
-      # Configure this to point to your container registry
-      # For K3s with local registry: set to your registry address
-      # For external registry (ghcr.io, docker.io, etc.): configure accordingly
-      # Example: address: "ghcr.io/yourusername"
-      # insecure: true  # Set to true for local/dev registries without TLS
-      organization: camel-k
+      # Using local k3s containerd - no external registry needed
+      address: localhost:5000
+      insecure: true
     timeout: 5m
   cluster: Kubernetes
   profile: Kubernetes
