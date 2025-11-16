@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: inventory-metrics
+  namespace: inventory
+  labels:
+    release: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  selector:
+    matchLabels:
+      app: inventory
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
