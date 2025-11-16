@@ -30,6 +30,33 @@ spec:
               name: inventory-secret
               key: secret-key
               optional: true
+        - name: DB_ENGINE
+          value: "django.db.backends.postgresql"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-host
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-port
       containers:
       - name: inventory
         image: ghcr.io/marcoplaisier/inventory:latest
@@ -46,6 +73,33 @@ spec:
               name: inventory-secret
               key: secret-key
               optional: true
+        - name: DB_ENGINE
+          value: "django.db.backends.postgresql"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-host
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: db-port
         livenessProbe:
           httpGet:
             path: /components/
