@@ -15,6 +15,21 @@ spec:
       labels:
         app: inventory
     spec:
+      initContainers:
+      - name: migrate
+        image: ghcr.io/marcoplaisier/inventory:latest
+        command: ["python", "manage.py", "migrate"]
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: ALLOWED_HOSTS
+          value: "inventory.local,localhost"
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: inventory-secret
+              key: secret-key
+              optional: true
       containers:
       - name: inventory
         image: ghcr.io/marcoplaisier/inventory:latest
