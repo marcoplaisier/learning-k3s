@@ -1,0 +1,46 @@
+{% extends "components/base.html" %}
+
+{% block title %}{{ component.name }} - Inventory{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'component_list' %}" class="btn btn-secondary">← Back to List</a>
+</div>
+
+<div style="max-width: 800px;">
+    <h2 style="margin-bottom: 20px; color: #2c3e50;">{{ component.name }}</h2>
+
+    <div style="background-color: #f8f9fa; border-left: 4px solid #3498db; padding: 20px; margin-bottom: 30px; border-radius: 4px;">
+        <h3 style="margin-bottom: 10px; color: #2c3e50; font-size: 18px;">Description</h3>
+        <p style="color: #555; line-height: 1.8;">{{ component.description }}</p>
+    </div>
+
+    <div style="background-color: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+        <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 18px;">Component Details</h3>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px 0; font-weight: bold; color: #7f8c8d; width: 30%;">Component ID</td>
+                <td style="padding: 12px 0; font-family: monospace; background-color: #ecf0f1; padding: 8px; border-radius: 4px; font-size: 14px;">{{ component.id }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px 0; font-weight: bold; color: #7f8c8d;">Name</td>
+                <td style="padding: 12px 0;">{{ component.name }}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px 0; font-weight: bold; color: #7f8c8d;">Published Date</td>
+                <td style="padding: 12px 0;">{{ component.pub_date|date:"F d, Y, g:i a" }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px 0; font-weight: bold; color: #7f8c8d;">Last Modified</td>
+                <td style="padding: 12px 0;">{{ component.pub_date|timesince }} ago</td>
+            </tr>
+        </table>
+    </div>
+
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+        <a href="/admin/components/component/{{ component.id }}/change/" class="btn">Edit Component</a>
+        <a href="{% url 'component_list' %}" class="btn btn-secondary" style="margin-left: 10px;">Back to List</a>
+    </div>
+</div>
+{% endblock %}
