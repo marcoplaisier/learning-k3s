@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: karavan
+  namespace: karavan
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karavan
+  template:
+    metadata:
+      labels:
+        app: karavan
+    spec:
+      serviceAccountName: karavan
+      containers:
+      - name: karavan
+        image: ghcr.io/apache/camel-karavan:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: KARAVAN_ENVIRONMENT
+          value: "kubernetes"
+        - name: KARAVAN_GIT_REPOSITORY
+          value: "/karavan/data"
+        - name: KARAVAN_DEFAULT_RUNTIME
+          value: "camel-k"
+        volumeMounts:
+        - name: karavan-data
+          mountPath: /karavan/data
+        livenessProbe:
+          httpGet:
+            path: /q/health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /q/health/ready
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: karavan-data
+        persistentVolumeClaim:
+          claimName: karavan-data
