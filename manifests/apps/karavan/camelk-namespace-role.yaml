@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: karavan-camelk-role
+  namespace: camel-k
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+rules:
+- apiGroups: ["camel.apache.org"]
+  resources: ["integrations", "integrationplatforms", "integrationkits", "kamelets", "pipes", "builds"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["secrets", "configmaps", "serviceaccounts", "pods", "services"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["pods/exec", "pods/log"]
+  verbs: ["create", "get", "list"]
