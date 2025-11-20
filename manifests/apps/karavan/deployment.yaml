@@ -18,7 +18,7 @@ spec:
       serviceAccountName: karavan
       containers:
       - name: karavan
-        image: ghcr.io/apache/camel-karavan:latest
+        image: ghcr.io/apache/camel-karavan:4.10.2
         ports:
         - containerPort: 8080
           name: http
@@ -29,6 +29,14 @@ spec:
           value: "/karavan/data"
         - name: KARAVAN_DEFAULT_RUNTIME
           value: "camel-k"
+        - name: KARAVAN_CONTAINER_STATUS_INTERVAL
+          value: "disabled"
+        - name: KARAVAN_CONTAINER_STATISTICS_INTERVAL
+          value: "disabled"
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         volumeMounts:
         - name: karavan-data
           mountPath: /karavan/data

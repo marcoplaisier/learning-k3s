@@ -1,0 +1,22 @@
+apiVersion: camel.apache.org/v1
+kind: Integration
+metadata:
+  name: my-integration.yaml
+spec:
+  flows:
+    - restConfiguration: {}
+    - route:
+        from:
+          uri: kamelet:timer-source
+          steps:
+            - to:
+                uri: 'https://news.ycombinator.com'
+                description: Call YCombinator
+                parameters:
+                  consumes: text/html
+            - log:
+                logName: My Logger
+                loggingLevel: INFO
+                message: Retrieved from y-combinator
+          parameters:
+            period: 60000
