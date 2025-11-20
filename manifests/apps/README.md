@@ -48,10 +48,12 @@ manifests/apps/
 
 **Wave Order**:
 1. **Wave 1**: Namespaces
-2. **Wave 2**: RBAC (ServiceAccounts, Roles, RoleBindings), ConfigMaps, Secrets, PVCs
-3. **Wave 3**: Deployments, StatefulSets, DaemonSets
+2. **Wave 2**: RBAC (ServiceAccounts, Roles, RoleBindings), ConfigMaps, Secrets
+3. **Wave 3**: Deployments, StatefulSets, DaemonSets, **and their PVCs**
 4. **Wave 4**: Services
 5. **Wave 5**: Ingresses
+
+**Important**: PersistentVolumeClaims must be in the **same wave** as the Deployment/StatefulSet that uses them. Placing PVCs in an earlier wave can cause a deadlock where the PVC waits for a pod to claim it, but the pod (in a later wave) waits for the earlier wave to complete.
 
 **Example**:
 ```yaml
@@ -65,7 +67,8 @@ metadata:
 
 **Benefits**:
 - Namespaces exist before resources are created in them
-- RBAC and storage are ready before workloads start
+- RBAC and configuration (Secrets/ConfigMaps) are ready before workloads start
+- PVCs are created alongside their consuming workloads (avoiding deadlocks)
 - Services exist before ingress routes to them
 - Predictable, repeatable deployments
 
