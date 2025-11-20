@@ -33,14 +33,12 @@ spec:
         - name: karavan-data
           mountPath: /karavan/data
         livenessProbe:
-          httpGet:
-            path: /q/health/live
+          tcpSocket:
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
-          httpGet:
-            path: /q/health/ready
+          tcpSocket:
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
