@@ -26,7 +26,25 @@ spec:
         - name: KARAVAN_ENVIRONMENT
           value: "kubernetes"
         - name: KARAVAN_GIT_REPOSITORY
-          value: "/karavan/data"
+          valueFrom:
+            secretKeyRef:
+              name: karavan-git
+              key: karavan.git.repository
+        - name: KARAVAN_GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: karavan-git
+              key: karavan.git.username
+        - name: KARAVAN_GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: karavan-git
+              key: karavan.git.password
+        - name: KARAVAN_GIT_BRANCH
+          valueFrom:
+            secretKeyRef:
+              name: karavan-git
+              key: karavan.git.branch
         - name: KARAVAN_DEFAULT_RUNTIME
           value: "camel-k"
         - name: KARAVAN_CONTAINER_STATUS_INTERVAL
