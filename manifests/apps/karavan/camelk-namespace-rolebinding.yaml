@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: karavan-camelk-access
+  namespace: camel-k
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+roleRef:
+  kind: Role
+  apiGroup: rbac.authorization.k8s.io
+  name: karavan-camelk-role
+subjects:
+- kind: ServiceAccount
+  name: karavan
+  namespace: karavan
