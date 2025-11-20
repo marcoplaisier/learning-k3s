@@ -37,6 +37,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: KARAVAN_DEPLOYMENT_NAMESPACES
+          value: "camel-k"
         volumeMounts:
         - name: karavan-data
           mountPath: /karavan/data
