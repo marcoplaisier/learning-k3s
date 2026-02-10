@@ -60,7 +60,7 @@ All Kubernetes manifests are located in `/manifests/apps/inventory/`:
 - `secret.yaml` - Contains the Django SECRET_KEY
 - `deployment.yaml` - Deployment with 2 replicas
 - `service.yaml` - ClusterIP service on port 80
-- `ingress.yaml` - Ingress for inventory.homelab.local
+- `ingress.yaml` - Ingress for inventory.homelab.internal
 
 ### Environment Variables
 
@@ -79,9 +79,9 @@ The following environment variables can be configured:
 ### Access
 
 Once deployed, the application will be accessible at:
-- http://inventory.homelab.local
-- Admin interface: http://inventory.homelab.local/admin/
-- Components API: http://inventory.homelab.local/components/
+- http://inventory.homelab.internal
+- Admin interface: http://inventory.homelab.internal/admin/
+- Components API: http://inventory.homelab.internal/components/
 
 ## Building and Pushing to Registry
 

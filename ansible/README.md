@@ -139,10 +139,10 @@ After installation:
 
 1. Add to your `/etc/hosts`:
    ```bash
-   echo "192.168.178.81 argocd.homelab.local" | sudo tee -a /etc/hosts
+   echo "192.168.178.81 argocd.homelab.internal" | sudo tee -a /etc/hosts
    ```
 
-2. Access the UI at: `http://argocd.homelab.local`
+2. Access the UI at: `http://argocd.homelab.internal`
 
 3. Login with:
    - Username: `admin`
@@ -234,7 +234,7 @@ After the cluster is set up:
    ansible-playbook argocd-setup.yml
    ```
    (The playbook automatically applies namespace and ingress from `../manifests/apps/argo-cd/`)
-2. **Access Traefik dashboard** at `http://traefik.homelab.local/dashboard/` (add to `/etc/hosts` first)
+2. **Access Traefik dashboard** at `http://traefik.homelab.internal/dashboard/` (add to `/etc/hosts` first)
 3. **Deploy your applications** using kubectl or ArgoCD from the `../manifests` directory
 4. Configure additional Ingress resources to expose your applications
 5. Add persistent storage if needed for stateful applications

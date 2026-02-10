@@ -9,7 +9,7 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`traefik.homelab.local`)
+    - match: Host(`traefik.homelab.internal`)
       kind: Rule
       services:
         - name: api@internal

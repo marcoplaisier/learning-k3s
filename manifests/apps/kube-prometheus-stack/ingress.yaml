@@ -7,7 +7,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "5"
 spec:
   rules:
-  - host: grafana.homelab.local
+  - host: grafana.homelab.internal
     http:
       paths:
       - path: /

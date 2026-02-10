@@ -23,7 +23,7 @@ spec:
         - name: DEBUG
           value: "False"
         - name: ALLOWED_HOSTS
-          value: "inventory.homelab.local,localhost,*"
+          value: "inventory.homelab.internal,localhost,*"
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -66,7 +66,7 @@ spec:
         - name: DEBUG
           value: "False"
         - name: ALLOWED_HOSTS
-          value: "inventory.homelab.local,localhost,*"
+          value: "inventory.homelab.internal,localhost,*"
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
