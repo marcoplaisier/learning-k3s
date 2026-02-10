@@ -22,7 +22,7 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host(`argocd.local`)
+      match: Host(`argocd.homelab.local`)
       services:
         - name: argocd-server
           port: 443

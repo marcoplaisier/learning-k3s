@@ -59,7 +59,7 @@
           - ""
           - "To access ArgoCD:"
           - "1. Add '192.168.178.81 argocd.local' to your /etc/hosts file"
-          - "2. Access the UI at: http://argocd.local"
+          - "2. Access the UI at: http://argocd.homelab.local"
           - ""
           - "Or use port-forward temporarily:"
           - "kubectl port-forward svc/argocd-server -n argocd 8080:443"
