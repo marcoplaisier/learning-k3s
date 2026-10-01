@@ -1,0 +1,9 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: bulk
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+provisioner: rancher.io/local-path-bulk
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
