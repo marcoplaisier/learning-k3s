@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bulk-storage-provisioner
+  namespace: bulk-storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: bulk-storage-provisioner
+subjects:
+  - kind: ServiceAccount
+    name: bulk-storage-provisioner
+    namespace: bulk-storage

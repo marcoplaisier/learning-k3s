@@ -1,0 +1,44 @@
+# Second local-path-provisioner instance that places volumes on each node's
+# secondary drive, mounted at /mnt/bulk (controlplane: 256 GB SSD,
+# worker-1: 1 TB HDD). Only the nodes listed here can host "bulk" volumes;
+# a node without the drive gets no path and provisioning fails loudly
+# instead of silently landing on its root filesystem.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bulk-storage-config
+  namespace: bulk-storage
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+data:
+  config.json: |-
+    {
+      "nodePathMap": [
+        { "node": "controlplane", "paths": ["/mnt/bulk"] },
+        { "node": "worker-1",     "paths": ["/mnt/bulk"] },
+        { "node": "DEFAULT_PATH_FOR_NON_LISTED_NODES", "paths": [] }
+      ]
+    }
+  setup: |-
+    #!/bin/sh
+    set -eu
+    mkdir -m 0777 -p "$VOL_DIR"
+  teardown: |-
+    #!/bin/sh
+    set -eu
+    rm -rf "$VOL_DIR"
+  helperPod.yaml: |-
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: helper-pod
+    spec:
+      priorityClassName: system-node-critical
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: helper-pod
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
