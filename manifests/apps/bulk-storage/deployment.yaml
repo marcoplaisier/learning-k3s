@@ -18,7 +18,7 @@ spec:
       serviceAccountName: bulk-storage-provisioner
       containers:
         - name: local-path-provisioner
-          image: rancher/local-path-provisioner:v0.0.32
+          image: rancher/local-path-provisioner:v0.0.37
           imagePullPolicy: IfNotPresent
           command:
             - local-path-provisioner
